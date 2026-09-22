@@ -1,1 +1,442 @@
-# Smoke-Empire-test-
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Smoke Empire - Dein Premium Vape & Shisha Shop im UNI-Center Köln.">
+    <title>Smoke Empire | Vape & Shisha Shop Köln</title>
+    
+    <!-- Externe Bibliotheken -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Custom CSS für absolute Premium-Optik & Neon-Vibes -->
+    <style>
+        :root {
+            --neon-cyan: #06b6d4;
+            --neon-cyan-glow: rgba(6, 182, 212, 0.6);
+        }
+        body { 
+            font-family: 'Inter', -apple-system, sans-serif; 
+            background-color: #020617; /* Extrem dunkles Blau/Schwarz */
+        }
+        
+        /* Abstrakter Background statt echtes Bild (wirkt edler für Shops) */
+        .hero-bg {
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(6, 182, 212, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.08), transparent 25%);
+            background-color: #020617;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #0891b2; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+        
+        /* Glow Effekte passend zum Schaufenster */
+        .neon-glow {
+            box-shadow: 0 0 15px var(--neon-cyan-glow), 0 0 30px rgba(6, 182, 212, 0.2);
+        }
+        .neon-text {
+            text-shadow: 0 0 10px var(--neon-cyan-glow), 0 0 20px rgba(6, 182, 212, 0.4);
+        }
+        .border-glow {
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            box-shadow: inset 0 0 20px rgba(6, 182, 212, 0.05);
+        }
+
+        /* Verstecke Elemente bis Alpine geladen ist */
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="text-gray-100 antialiased selection:bg-cyan-500 selection:text-white" x-data="smokeEmpireApp()">
+
+    <!-- ================= AGE VERIFICATION OVERLAY ================= -->
+    <div x-show="!ageVerified" x-cloak class="fixed inset-0 z-[100] bg-slate-950/98 backdrop-blur-2xl flex items-center justify-center px-6">
+        <div class="bg-slate-900 border border-cyan-500/30 p-10 md:p-14 rounded-[2.5rem] max-w-lg text-center shadow-[0_0_50px_rgba(6,182,212,0.15)] relative overflow-hidden">
+            <div class="absolute -top-20 -right-20 w-40 h-40 bg-cyan-500/20 rounded-full blur-3xl"></div>
+            
+            <div class="w-24 h-24 mx-auto bg-slate-800 rounded-2xl flex items-center justify-center mb-8 text-cyan-400 neon-glow border border-cyan-500/20">
+                <i class="fa-solid fa-id-card text-4xl"></i>
+            </div>
+            <h2 class="text-4xl font-black mb-4 tracking-tight">Zutritt ab 18</h2>
+            <p class="text-slate-400 mb-10 text-lg leading-relaxed">Verkauf von E-Zigaretten, Shishas und Tabakwaren nur an volljährige Personen gemäß Jugendschutzgesetz.</p>
+            
+            <div class="space-y-4 relative z-10">
+                <button @click="verifyAge()" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black py-5 rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all transform hover:scale-105 text-lg tracking-wide">
+                    JA, ICH BIN ÜBER 18
+                </button>
+                <a href="https://google.de" class="block w-full bg-slate-800 text-slate-400 font-bold py-5 rounded-2xl hover:bg-slate-700 hover:text-white transition-all">
+                    Nein, ich bin jünger
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MAIN APPLICATION ================= -->
+    <div x-show="ageVerified" x-transition.opacity.duration.800ms>
+
+        <!-- LIVE STATUS BANNER -->
+        <div class="bg-gradient-to-r from-cyan-900 via-blue-900 to-cyan-900 border-b border-cyan-500/30 text-white text-xs font-black py-2.5 px-4 text-center tracking-widest uppercase flex items-center justify-center gap-3">
+            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(74,222,128,1)]"></div>
+            Geöffnet bis 20:00 Uhr im UNI-Center Köln[span_2](start_span)[span_2](end_span)
+        </div>
+
+        <!-- NAVIGATION -->
+        <nav class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-2xl border-b border-slate-800 shadow-2xl">
+            <div class="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
+                
+                <!-- BRAND / LOGO -->
+                <a href="#" @click.prevent="activePage = 'home'" class="flex items-center gap-4 group">
+                    <div class="w-12 h-12 rounded-xl bg-slate-900 border border-cyan-500/30 flex items-center justify-center neon-glow group-hover:rotate-6 transition-transform">
+                        <i class="fa-solid fa-cloud text-cyan-400 text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-black tracking-tighter text-white uppercase leading-none">Smoke <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Empire</span></div>
+                        <div class="text-[10px] text-cyan-400 font-bold tracking-[0.3em] mt-1">Vape & Shisha</div>
+                    </div>
+                </a>
+
+                <!-- DESKTOP MENU -->
+                <div class="hidden lg:flex items-center space-x-2 bg-slate-900/50 p-1.5 rounded-2xl border border-slate-800">
+                    <template x-for="tab in tabs" :key="tab.id">
+                        <button @click="activePage = tab.id; window.scrollTo(0,0);" 
+                                :class="activePage === tab.id ? 'bg-cyan-500/10 text-cyan-400 font-bold border border-cyan-500/30' : 'text-slate-400 hover:text-white border border-transparent'" 
+                                class="px-6 py-2.5 rounded-xl text-sm transition-all"
+                                x-text="tab.name"></button>
+                    </template>
+                </div>
+
+                <!-- WHATSAPP QUICK ACTION -->
+                <div class="hidden lg:flex items-center">
+                    <a href="https://wa.me/491773827247?text=Hey%20welche%20vapes%20habt%20ihr%20noch%20da" target="_blank" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white font-black px-6 py-3.5 rounded-2xl text-sm transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] flex items-center gap-3 transform hover:-translate-y-1">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> Bestand anfragen
+                    </a>
+                </div>
+
+                <!-- MOBILE HAMBURGER -->
+                <button @click="mobileMenu = !mobileMenu" class="lg:hidden w-12 h-12 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-center text-cyan-400 focus:outline-none">
+                    <i :class="mobileMenu ? 'fa-solid fa-xmark text-xl' : 'fa-solid fa-bars text-xl'"></i>
+                </button>
+            </div>
+
+            <!-- MOBILE MENU DROPDOWN -->
+            <div x-show="mobileMenu" x-collapse class="lg:hidden bg-slate-950 border-b border-cyan-900/30 shadow-2xl absolute w-full left-0 z-40">
+                <div class="p-6 space-y-3">
+                    <template x-for="tab in tabs" :key="tab.id">
+                        <button @click="activePage = tab.id; mobileMenu = false; window.scrollTo(0,0);" class="block w-full text-left font-black text-xl py-4 px-5 rounded-2xl bg-slate-900 hover:bg-cyan-900/30 hover:text-cyan-400 transition border border-slate-800" x-text="tab.name"></button>
+                    </template>
+                    <div class="pt-4 mt-4 border-t border-slate-800">
+                        <a href="https://wa.me/491773827247?text=Hey%20welche%20vapes%20habt%20ihr%20noch%20da" target="_blank" class="flex items-center justify-center gap-3 w-full bg-green-500 text-white font-black py-5 rounded-2xl shadow-lg">
+                            <i class="fa-brands fa-whatsapp text-2xl"></i> Vape-Bestand anfragen
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="min-h-screen">
+
+            <!-- ================= PAGE 1: HOME ================= -->
+            <section x-show="activePage === 'home'" x-transition.in.opacity.duration.600ms x-cloak>
+                <!-- Hero Section -->
+                <header class="hero-bg py-20 md:py-32 px-6 border-b border-slate-900">
+                    <div class="max-w-5xl mx-auto text-center relative z-10">
+                        <span class="text-cyan-400 font-bold uppercase tracking-[0.3em] text-xs bg-cyan-500/10 px-5 py-2 rounded-full border border-cyan-500/30 inline-block mb-8">
+                            Premium Shop im Uni-Center[span_3](start_span)[span_3](end_span)
+                        </span>
+                        <h1 class="text-5xl md:text-8xl font-black mb-6 tracking-tighter text-white">
+                            DEIN <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 neon-text">SMOKE</span><br>EMPIRE.
+                        </h1>
+                        <p class="text-slate-400 text-xl md:text-2xl mb-12 max-w-2xl mx-auto leading-relaxed">
+                            Die größte Auswahl an Vapes, E-Zigaretten, Premium-Tabak und Zubehör direkt in Köln Lindenthal.
+                        </p>
+                        
+                        <!-- CTA Action Area -->
+                        <div class="bg-slate-900/80 backdrop-blur-md p-3 rounded-[2rem] border border-slate-800 inline-flex flex-col sm:flex-row gap-3 max-w-full">
+                            <button @click="activePage = 'vapes'; window.scrollTo(0,0);" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-8 py-4 rounded-2xl transition-all flex items-center justify-center gap-3">
+                                <i class="fa-solid fa-box-open text-cyan-400"></i> Sortiment ansehen
+                            </button>
+                            <!-- WHATSAPP BUTTON (Exakter Text!) -->
+                            <a href="https://wa.me/491773827247?text=Hey%20welche%20vapes%20habt%20ihr%20noch%20da" target="_blank" class="bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-black px-8 py-4 rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.3)] transition transform hover:scale-105 flex items-center justify-center gap-3">
+                                <i class="fa-brands fa-whatsapp text-xl"></i> Was habt ihr da?
+                            </a>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Value Props Grid -->
+                <section class="py-24 px-6 max-w-7xl mx-auto">
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-slate-900 border-glow p-10 rounded-[2rem] relative overflow-hidden group">
+                            <div class="absolute top-0 right-0 p-6 text-cyan-500/10 text-8xl transition-transform group-hover:scale-110 group-hover:text-cyan-500/20"><i class="fa-solid fa-bolt"></i></div>
+                            <div class="w-14 h-14 bg-cyan-500/10 rounded-2xl flex items-center justify-center text-cyan-400 text-2xl mb-6 relative z-10"><i class="fa-solid fa-battery-full"></i></div>
+                            <h3 class="text-2xl font-black mb-3 relative z-10">Vapes & Pods</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed relative z-10">Alle Top-Marken auf Lager. Elfbar, 187, Lost Mary und die neuesten wiederaufladbaren Pod-Systeme.</p>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 p-10 rounded-[2rem] relative overflow-hidden group hover:border-blue-500/30 transition-colors">
+                            <div class="absolute top-0 right-0 p-6 text-blue-500/10 text-8xl transition-transform group-hover:scale-110 group-hover:text-blue-500/20"><i class="fa-solid fa-leaf"></i></div>
+                            <div class="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 text-2xl mb-6 relative z-10"><i class="fa-solid fa-smoking"></i></div>
+                            <h3 class="text-2xl font-black mb-3 relative z-10">Premium Tabak</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed relative z-10">Eine massive Auswahl an Shisha-Tabak. Die besten Aromen, Dosen und Vorratspackungen direkt zum Mitnehmen.</p>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 p-10 rounded-[2rem] relative overflow-hidden group hover:border-purple-500/30 transition-colors">
+                            <div class="absolute top-0 right-0 p-6 text-purple-500/10 text-8xl transition-transform group-hover:scale-110 group-hover:text-purple-500/20"><i class="fa-solid fa-gem"></i></div>
+                            <div class="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-400 text-2xl mb-6 relative z-10"><i class="fa-solid fa-fire-burner"></i></div>
+                            <h3 class="text-2xl font-black mb-3 relative z-10">Zubehör & Co.</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed relative z-10">Von Kohle über Köpfe, Mundstücke bis zur kompletten Edelstahl-Pfeife. Wir haben das volle Setup.</p>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <!-- ================= PAGE 2: VAPES (KATALOG) ================= -->
+            <section x-show="activePage === 'vapes'" x-transition.in.opacity.duration.600ms x-cloak class="py-20 px-6 max-w-7xl mx-auto">
+                <div class="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div>
+                        <h2 class="text-5xl font-black mb-2">Vapes & <span class="text-cyan-400">E-Zigaretten</span></h2>
+                        <p class="text-slate-400 text-lg">Unser aktuelles Lineup. Bestand auf Anfrage.</p>
+                    </div>
+                    <a href="https://wa.me/491773827247?text=Hey%20welche%20vapes%20habt%20ihr%20noch%20da" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-6 rounded-xl flex items-center gap-3 w-max border border-slate-700">
+                        <i class="fa-brands fa-whatsapp text-green-400"></i> Bestand checken
+                    </a>
+                </div>
+
+                <!-- Grid für Produkte generiert durch Alpine JS -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <template x-for="item in products.vapes" :key="item.name">
+                        <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden group hover:border-cyan-500/50 transition-all flex flex-col h-full">
+                            
+                            <!-- BILD-PLATZHALTER MIT FRAGEZEICHEN -->
+                            <div class="h-56 bg-slate-950 relative flex flex-col items-center justify-center p-6 border-b border-slate-800 overflow-hidden">
+                                <!-- Abstrakter Background Glow im Platzhalter -->
+                                <div class="absolute inset-0 bg-gradient-to-br from-cyan-900/20 to-transparent"></div>
+                                <div class="relative z-10 text-slate-700 group-hover:text-cyan-500/50 transition-colors duration-500 transform group-hover:scale-110">
+                                    <i class="fa-solid fa-circle-question text-6xl"></i>
+                                </div>
+                                <span class="mt-4 text-[10px] font-black tracking-[0.2em] text-slate-600 relative z-10">BILD FOLGT</span>
+                                <!-- Preis-Tag -->
+                                <div class="absolute top-4 right-4 bg-slate-800 text-cyan-400 font-black px-3 py-1 rounded-lg text-sm border border-slate-700 z-20" x-text="item.price"></div>
+                            </div>
+                            
+                            <div class="p-6 flex-1 flex flex-col">
+                                <span class="text-cyan-500 text-[10px] font-black tracking-widest uppercase mb-1" x-text="item.brand"></span>
+                                <h4 class="text-xl font-bold text-white mb-2" x-text="item.name"></h4>
+                                <p class="text-slate-400 text-xs leading-relaxed mb-6 flex-1" x-text="item.desc"></p>
+                                
+                                <a href="https://wa.me/491773827247?text=Hey%20welche%20vapes%20habt%20ihr%20noch%20da" target="_blank" class="w-full block text-center bg-slate-800 hover:bg-cyan-600 hover:text-white text-slate-300 font-bold py-3 rounded-xl text-sm transition-colors border border-slate-700">
+                                    Verfügbarkeit anfragen
+                                </a>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </section>
+
+            <!-- ================= PAGE 3: TABAK ================= -->
+            <section x-show="activePage === 'tabak'" x-transition.in.opacity.duration.600ms x-cloak class="py-20 px-6 max-w-7xl mx-auto">
+                <div class="mb-16">
+                    <h2 class="text-5xl font-black mb-2">Shisha <span class="text-blue-400">Tabak</span></h2>
+                    <p class="text-slate-400 text-lg">Die stärksten Marken im Sortiment.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <template x-for="item in products.tabak" :key="item.name">
+                        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 flex items-center gap-6 group hover:border-blue-500/50 transition-all">
+                            
+                            <!-- KLEINER PLATZHALTER FÜR TABAK-DOSEN -->
+                            <div class="w-24 h-24 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col items-center justify-center shrink-0">
+                                <i class="fa-solid fa-box text-3xl text-slate-700 group-hover:text-blue-500/50 transition-colors"></i>
+                            </div>
+                            
+                            <div class="flex-1">
+                                <h4 class="text-lg font-bold text-white mb-1" x-text="item.name"></h4>
+                                <p class="text-slate-400 text-xs mb-3" x-text="item.desc"></p>
+                                <div class="inline-block bg-slate-800 text-blue-400 font-black px-2 py-1 rounded text-xs" x-text="item.price"></div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </section>
+
+            <!-- ================= PAGE 4: ZUBEHÖR ================= -->
+            <section x-show="activePage === 'zubehoer'" x-transition.in.opacity.duration.600ms x-cloak class="py-20 px-6 max-w-7xl mx-auto">
+                <div class="mb-16">
+                    <h2 class="text-5xl font-black mb-2">Hardware & <span class="text-purple-400">Zubehör</span></h2>
+                    <p class="text-slate-400 text-lg">Alles was du für dein Setup brauchst.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <template x-for="item in products.zubehoer" :key="item.name">
+                        <div class="bg-slate-900 border border-slate-800 rounded-[2rem] p-8 flex justify-between items-center hover:border-purple-500/50 transition-all">
+                            <div>
+                                <h4 class="text-xl font-bold text-white mb-2" x-text="item.name"></h4>
+                                <p class="text-slate-400 text-sm" x-text="item.desc"></p>
+                            </div>
+                            <div class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-slate-500 shrink-0 border border-slate-700">
+                                <i class="fa-solid fa-image"></i>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </section>
+
+            <!-- ================= PAGE 5: FAQ & KONTAKT ================= -->
+            <section x-show="activePage === 'kontakt'" x-transition.in.opacity.duration.600ms x-cloak class="py-20 px-6 max-w-7xl mx-auto">
+                
+                <div class="grid lg:grid-cols-2 gap-12">
+                    <!-- Kontakt Info Box -->
+                    <div class="bg-slate-900 border border-slate-800 p-10 md:p-14 rounded-[3rem] relative overflow-hidden shadow-2xl">
+                        <div class="absolute -top-32 -right-32 w-64 h-64 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none"></div>
+                        
+                        <span class="text-cyan-500 font-black tracking-widest text-xs uppercase mb-4 block">Store Info</span>
+                        <h2 class="text-4xl font-black mb-10">Smoke Empire</h2>
+                        
+                        <ul class="space-y-8 mb-12">
+                            <li class="flex items-start gap-5">
+                                <div class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-cyan-400 shrink-0 border border-slate-700"><i class="fa-solid fa-location-dot"></i></div>
+                                <div>
+                                    <strong class="block text-white mb-1 text-lg">Adresse</strong>
+                                    <p class="text-slate-400">Luxemburger Str. 124<br>50939 Lindenthal (UNI-Center Köln)</p>[span_4](start_span)[span_4](end_span)
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-5">
+                                <div class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-cyan-400 shrink-0 border border-slate-700"><i class="fa-solid fa-clock"></i></div>
+                                <div>
+                                    <strong class="block text-white mb-1 text-lg">Öffnungszeiten</strong>
+                                    <p class="text-slate-400">Heute geöffnet bis 20:00 Uhr</p>[span_5](start_span)[span_5](end_span)
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-5">
+                                <div class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-cyan-400 shrink-0 border border-slate-700"><i class="fa-solid fa-phone"></i></div>
+                                <div>
+                                    <strong class="block text-white mb-1 text-lg">Telefon</strong>
+                                    <p class="text-slate-400">0177 3827247</p>[span_6](start_span)[span_6](end_span)
+                                </div>
+                            </li>
+                        </ul>
+
+                        <!-- WHATSAPP EXAKT WIE GEFORDERT -->
+                        <a href="https://wa.me/491773827247?text=Hey%20welche%20vapes%20habt%20ihr%20noch%20da" target="_blank" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-black py-5 rounded-2xl flex items-center justify-center gap-3 text-lg shadow-[0_0_20px_rgba(16,185,129,0.3)] transition transform hover:scale-[1.02]">
+                            <i class="fa-brands fa-whatsapp text-3xl"></i> Im Chat fragen
+                        </a>
+                    </div>
+
+                    <!-- FAQ Akkordeon (Alpine JS Logic) -->
+                    <div class="flex flex-col justify-center">
+                        <h2 class="text-4xl font-black mb-8">FAQ / <span class="text-cyan-400">Häufige Fragen</span></h2>
+                        <div class="space-y-4">
+                            <template x-for="(faq, index) in faqs" :key="index">
+                                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden transition-all">
+                                    <button @click="faq.open = !faq.open" class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                                        <span class="font-bold text-lg text-white" x-text="faq.q"></span>
+                                        <i class="fa-solid fa-chevron-down text-cyan-500 transition-transform duration-300" :class="faq.open ? 'rotate-180' : ''"></i>
+                                    </button>
+                                    <div x-show="faq.open" x-collapse>
+                                        <div class="p-6 pt-0 text-slate-400 leading-relaxed" x-text="faq.a"></div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Google Maps Embed -->
+                <div class="mt-12 rounded-[3rem] overflow-hidden border border-slate-800 h-[400px] shadow-2xl relative w-full">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2514.5!2d6.93!3d50.92!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47bf25b0!2sLuxemburger%20Str.%20124%2C%2050939%20K%C3%B6ln!5e0!3m2!1sde!2sde!4v1620000000000!5m2!1sde!2sde" width="100%" height="100%" style="border:0; filter: invert(90%) hue-rotate(180deg) brightness(85%);" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+            </section>
+        </main>
+
+        <!-- ================= FOOTER ================= -->
+        <footer class="py-12 border-t border-slate-900 bg-slate-950 mt-12 text-slate-500 text-sm">
+            <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-cloud text-cyan-700 text-lg"></i>
+                    <p>&copy; 2026 Smoke Empire Köln Lindenthal. Alle Rechte vorbehalten.</p>[span_7](start_span)[span_7](end_span)
+                </div>
+                <div class="flex gap-6 font-semibold">
+                    <a href="#" class="hover:text-cyan-400 transition">Impressum</a>
+                    <a href="#" class="hover:text-cyan-400 transition">Datenschutz</a>
+                    <a href="#" class="hover:text-cyan-400 transition">AGB</a>
+                </div>
+                <p class="text-cyan-600 font-black tracking-widest uppercase">Designed by IT Bros</p>
+            </div>
+        </footer>
+
+        <!-- FLOATING WHATSAPP ICON -->
+        <a href="https://wa.me/491773827247?text=Hey%20welche%20vapes%20habt%20ihr%20noch%20da" target="_blank" class="fixed bottom-6 right-6 bg-green-500 hover:bg-green-400 text-white w-16 h-16 rounded-full flex items-center justify-center text-3xl shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-all transform hover:scale-110 z-50 border-2 border-green-400">
+            <i class="fa-brands fa-whatsapp"></i>
+        </a>
+    </div>
+
+    <!-- ================= JAVASCRIPT & DATENBANK ================= -->
+    <script>
+        function smokeEmpireApp() {
+            return {
+                ageVerified: false,
+                activePage: 'home',
+                mobileMenu: false,
+                
+                // Navigations-Tabs
+                tabs: [
+                    { id: 'home', name: 'Startseite' },
+                    { id: 'vapes', name: 'Vapes & Pods' },
+                    { id: 'tabak', name: 'Shisha Tabak' },
+                    { id: 'zubehoer', name: 'Zubehör' },
+                    { id: 'kontakt', name: 'Store Info & FAQ' }
+                ],
+
+                // Produktdatenbank (Platzhalter-Bilder via CSS generiert)
+                products: {
+                    vapes: [
+                        { brand: 'Elfbar', name: 'Elfbar 600 V2', desc: 'Die neueste Generation. QUAQ Mesh Coil für intensiveren Geschmack. Verschiedene Sorten.', price: '6,90€' },
+                        { brand: '187 Strassenbande', name: '187 Vape', desc: 'Der Topseller. Babba Huppa, Miami Vice und viele weitere krasse Sorten direkt auf Lager.', price: '7,50€' },
+                        { brand: 'Lost Mary', name: 'Lost Mary BM600', desc: 'Kompaktes Design, gigantischer Geschmack. Marybull Ice, Triple Mango etc.', price: '7,90€' },
+                        { brand: 'Revoltage', name: 'Revoltage Bar', desc: 'Hybrid-Nikotinsalz für den perfekten Hit. Yellow Raspberry, Blue Cherry.', price: '8,00€' },
+                        { brand: 'ELFA', name: 'ELFA Pod System Base', desc: 'Der Akku für das ELFA System. Umweltfreundlicher als Einweg-Vapes.', price: '9,90€' },
+                        { brand: 'ELFA', name: 'ELFA Pods (2er Pack)', desc: 'Die passenden Pods zum Austauschen. Voller Geschmack, kein Wegwerf-Akku.', price: '8,90€' },
+                        { brand: 'HQD', name: 'HQD Surv', desc: 'Edles Metallgehäuse und weicher Durchzug. Black Dragon, Blackberry Ice.', price: '7,90€' },
+                        { brand: 'SKE', name: 'Crystal Bar', desc: 'Kristall-Design und extrem intensiver Mesh-Coil Flavour.', price: '7,50€' }
+                    ],
+                    tabak: [
+                        { name: 'Holster - Ice Kaktuz', desc: 'Der absolute Klassiker. Frischer Kaktus-Eis Geschmack. 25g oder 200g.', price: 'ab 4,00€' },
+                        { name: 'Nameless - Black Nana', desc: 'Die Legende unter den Traube-Minze Tabaksorten. Schmeckt immer.', price: 'ab 4,00€' },
+                        { name: 'O\'s Tobacco - African Queen', desc: 'Ein exotischer Früchtemix, den man einfach rauchen muss.', price: 'ab 4,00€' },
+                        { name: '187 - Hamburg', desc: 'Beerenmix der Extraklasse. Topseller im Shop.', price: 'ab 4,00€' },
+                        { name: 'Al Massiva - Bruderherz', desc: 'Drachenfrucht pur. Extrem fruchtig und süß.', price: 'ab 4,00€' },
+                        { name: 'Adalya - Love 66', desc: 'Wassermelone, Maracuja, Honigmelone, Minze.', price: 'ab 4,00€' }
+                    ],
+                    zubehoer: [
+                        { name: 'Premium Shisha Kohle (1kg)', desc: 'Black Coco, Tom Cococha, One Nation. Wenig Asche, lange Brenndauer.' },
+                        { name: 'Phunnel Köpfe', desc: 'Oblako, Hookain, Vandenberg. Für das perfekte Raucherlebnis mit HMD.' },
+                        { name: 'HMD / Smokebox', desc: 'Kaloud Lotus, Na Grani. Hitzemanagement für euren Kopf.' },
+                        { name: 'Hygienemundstücke', desc: 'Bunte Packs für den sicheren Abend mit Freunden.' },
+                        { name: 'Einweg-Zigaretten Zubehör', desc: 'Ladekabel und Lanyards für Pod-Systeme.' },
+                        { name: 'Shisha Reinigung', desc: 'Bürsten und Reiniger, damit die Pfeife nicht nach altem Tabak schmeckt.' }
+                    ]
+                },
+
+                // FAQ Daten
+                faqs: [
+                    { open: false, q: 'Welche Vape-Marken habt ihr da?', a: 'Wir haben immer eine riesige Auswahl da: Elfbar, 187, Lost Mary, HQD, Crystal Bar, Revoltage und auch Mehrweg-Systeme wie ELFA oder Pod-Kits.' },
+                    { open: false, q: 'Kann ich per WhatsApp bestellen/reservieren?', a: 'Nutze einfach den WhatsApp Button hier auf der Seite, schick uns eine kurze Nachricht und wir legen dir deine Lieblingssorten zurück, bevor sie ausverkauft sind.' },
+                    { open: false, q: 'Verkauft ihr an Minderjährige?', a: 'Nein, absolut nicht. Wir kontrollieren streng nach dem Jugendschutzgesetz. Verkauf von E-Zigaretten und Tabak ausschließlich ab 18 Jahren. Keine Ausnahmen.' },
+                    { open: false, q: 'Habt ihr auch große Tabakdosen?', a: 'Ja, wir führen neben den 25g Päckchen auch weiterhin große 200g oder 1000g Dosen diverser Hersteller im Sortiment.' }
+                ],
+
+                verifyAge() {
+                    this.ageVerified = true;
+                    // Kurz warten, damit das Overlay sanft ausblendet
+                    setTimeout(() => {
+                        window.scrollTo(0, 0);
+                    }, 100);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
